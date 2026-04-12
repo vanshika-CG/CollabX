@@ -7,7 +7,7 @@ import Whiteboard from '../components/Whiteboard';
 import PomodoroTimer from '../components/PomodoroTimer';
 import VideoGrid from '../components/VideoGrid';
 import PersonalNotes from '../components/PersonalNotes';
-import { ArrowLeft, Video, VideoOff, Lock, Unlock } from 'lucide-react';
+import { ArrowLeft, Video, VideoOff, Lock, Unlock, MessageSquare, Palette, Timer, StickyNote, ExternalLink } from 'lucide-react';
 
 const StudyRoom = () => {
   const { id } = useParams();
@@ -110,6 +110,22 @@ const StudyRoom = () => {
         
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '1rem' }}>
             {isRecording && <span style={{ color: 'var(--danger)', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span className="pulse-indicator"></span> Recording Session</span>}
+            
+            {/* Feature Navigation Buttons */}
+            <div style={{ display: 'flex', gap: '0.5rem', borderRight: '1px solid var(--border-color)', paddingRight: '1rem' }}>
+                <button className="btn btn-outline" onClick={() => navigate(`/room/${id}/chat`)} title="Open Chat in Full Screen" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>
+                    <MessageSquare size={14} /> Chat
+                </button>
+                <button className="btn btn-outline" onClick={() => navigate(`/room/${id}/whiteboard`)} title="Open Whiteboard in Full Screen" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>
+                    <Palette size={14} /> Board
+                </button>
+                <button className="btn btn-outline" onClick={() => navigate(`/room/${id}/timer`)} title="Open Timer in Full Screen" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>
+                    <Timer size={14} /> Timer
+                </button>
+                <button className="btn btn-outline" onClick={() => navigate(`/room/${id}/notes`)} title="Open Notes in Full Screen" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>
+                    <StickyNote size={14} /> Notes
+                </button>
+            </div>
             
             {isCreator && (
                 <button className={`btn ${isWhiteboardLocked ? 'btn-danger' : 'btn-outline'}`} onClick={toggleWhiteboardLock}>

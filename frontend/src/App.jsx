@@ -10,6 +10,10 @@ import AdminPanel from './pages/AdminPanel';
 import Flashcards from './pages/Flashcards';
 import Scheduler from './pages/Scheduler';
 import Profile from './pages/Profile';
+import Chat from './pages/Chat';
+import Whiteboard from './pages/Whiteboard';
+import PomodoroTimer from './pages/PomodoroTimer';
+import Notes from './pages/Notes';
 import { useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import { ToastContainer } from 'react-toastify';
@@ -49,6 +53,38 @@ const App = () => {
               <ProtectedRoute>
                  <SocketProvider>
                     <StudyRoom />
+                 </SocketProvider>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/room/:id/chat" element={
+              <ProtectedRoute>
+                 <SocketProvider>
+                    <Chat />
+                 </SocketProvider>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/room/:id/whiteboard" element={
+              <ProtectedRoute>
+                 <SocketProvider>
+                    <Whiteboard />
+                 </SocketProvider>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/room/:id/timer" element={
+              <ProtectedRoute>
+                 <SocketProvider>
+                    <PomodoroTimer />
+                 </SocketProvider>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/room/:id/notes" element={
+              <ProtectedRoute>
+                 <SocketProvider>
+                    <Notes />
                  </SocketProvider>
               </ProtectedRoute>
             } />
