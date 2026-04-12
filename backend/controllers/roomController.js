@@ -4,14 +4,13 @@ const createRoom = async (req, res) => {
   try {
     const { name, description, isPrivate, passcode } = req.body;
     
-    // Validate passcode requirement for private rooms
     if (isPrivate && !passcode) {
         return res.status(400).json({ message: 'Private rooms require a passcode' });
     }
 
     const room = await Room.create({
       name,
-      description,
+      description: description || 'Collaborative study session',
       creator: req.user._id,
       participants: [req.user._id],
       isPrivate: isPrivate || false,
@@ -26,7 +25,9 @@ const createRoom = async (req, res) => {
 
 const getRooms = async (req, res) => {
   try {
-    const rooms = await Room.find({ isPrivate: false }).populate('creator', 'username email');
+    const rooms = await Room.find({ isPrivate: false })
+      .populate('creator', 'username email')
+      .sort({ createdAt: -1 });
     res.json(rooms);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -35,7 +36,7 @@ const getRooms = async (req, res) => {
 
 const getRoom = async (req, res) => {
   try {
-    const room = await Room.findById(req.params.id);
+    const room = await Room.findById(req.params.id).populate('creator', 'username');
     if (!room) return res.status(404).json({ message: 'Room not found' });
     res.json(room);
   } catch (error) {
@@ -47,9 +48,7 @@ const joinRoom = async (req, res) => {
     try {
         const room = await Room.findById(req.params.id);
         
-        if (!room) {
-            return res.status(404).json({ message: 'Room not found' });
-        }
+        if (!room) return res.status(404).json({ message: 'Room not found' });
 
         if (room.isPrivate) {
             const { passcode } = req.body;
@@ -69,4 +68,52 @@ const joinRoom = async (req, res) => {
     }
 };
 
-module.exports = { createRoom, getRooms, getRoom, joinRoom };
+// New: Leave Room
+const leaveRoom = async (req, res) => {
+  try {
+    const room = await Room.findById(req.params.id);
+    if (!room) return res.status(404).json({ message: 'Room not found' });
+
+    // Remove user from participants
+    room.participants = room.participants.filter(
+      id => id.toString() !== req.user._id.toString()
+    );
+
+    // If no participants left and user was creator → delete room
+    if (room.participants.length === 0) {
+      await room.deleteOne();
+      return res.json({ message: 'Room deleted successfully' });
+    }
+
+    // If creator left, assign new creator (first participant)
+    if (room.creator.toString() === req.user._id.toString() && room.participants.length > 0) {
+      room.creator = room.participants[0];
+    }
+
+    await room.save();
+    res.json({ message: 'Left room successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getMyRooms = async (req, res) => {
+  try {
+    const rooms = await Room.find({ creator: req.user._id })
+      .populate('creator', 'username email')
+      .sort({ createdAt: -1 });
+    
+    res.json(rooms);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { 
+  createRoom, 
+  getRooms, 
+  getRoom, 
+  joinRoom,
+  leaveRoom,      // ← Added
+  getMyRooms 
+};
